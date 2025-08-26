@@ -4,179 +4,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generar Oficio</title>
+  <!-- Primary Meta Tags -->
+  <title>Generador Oficio Colabaración Económica</title>
+  <meta name="title" content="Generador Oficio Colabaración Económica" />
+  <meta name="description"
+    content="Generador de oficios para colaboración económica para la Feria Patronal Virgen de Angosto Huaca Blanca 2025." />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://oficio-generate.vercel.app/" />
+  <meta property="og:title" content="Generador Oficio Colabaración Económica" />
+  <meta property="og:description"
+    content="Generador de oficios para colaboración económica para la Feria Patronal Virgen de Angosto Huaca Blanca 2025." />
+  <meta property="og:image" content="https://metatags.io/images/meta-tags.png" />
+
+  <!-- X (Twitter) -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://oficio-generate.vercel.app/" />
+  <meta property="twitter:title" content="Generador Oficio Colabaración Económica" />
+  <meta property="twitter:description"
+    content="Generador de oficios para colaboración económica para la Feria Patronal Virgen de Angosto Huaca Blanca 2025." />
+  <meta property="twitter:image" content="https://metatags.io/images/meta-tags.png" />
+
+  <!-- Meta Tags Generated with https://metatags.io -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Arial', sans-serif;
-      background-color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: row;
-      width: 90%;
-      max-width: 1200px;
-      height: 75vh;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-      background-color: #fff;
-    }
-
-    /* Panel formulario */
-    .form-panel {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.95);
-    }
-
-    .form-card {
-      width: 100%;
-      max-width: 550px;
-      /* más ancho */
-    }
-
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 15px;
-      font-size: 28px;
-    }
-
-    p {
-      font-size: 14px;
-      color: #444;
-      margin-bottom: 25px;
-      text-align: center;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #555;
-      text-align: left;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
-      font-size: 16px;
-      outline: none;
-      transition: border-color 0.3s;
-    }
-
-    input[type="text"]:focus {
-      border-color: #007bff;
-    }
-
-    button {
-      width: 100%;
-      padding: 16px;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: #fff;
-      transition: background 0.3s;
-    }
-
-    button:disabled {
-      background-color: #bbb;
-      cursor: not-allowed;
-    }
-
-    button:hover:enabled {
-      background-color: #0056b3;
-    }
-
-    /* Panel imagen */
-    .image-panel {
-      flex: 1;
-      background: url('fondo.jpg') center center / cover no-repeat;
-    }
-
-    /* Movil: apilar vertical, formulario centrado y Virgen abajo */
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        height: auto;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      }
-
-      .form-panel {
-        width: 100%;
-        padding: 25px;
-        background: rgba(255, 255, 255, 0.95);
-      }
-
-      .form-card {
-        max-width: 100%;
-      }
-
-      h2 {
-        font-size: 24px;
-      }
-
-      p {
-        font-size: 14px;
-      }
-
-      .image-panel {
-        width: 100%;
-        height: 250px;
-        /* visible debajo */
-        margin-top: 20px;
-        background: url('fondo.jpg') center center / contain no-repeat;
-        background-size: contain;
-      }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-  <div class="container">
-    <div class="form-panel">
-      <div class="form-card">
-        <h2>Generar Oficio</h2>
-        <p>COLABORACIÓN ECONÓMICA PARA CELEBRACIÓN DEL LXI (61 años) ANIVERSARIO
-          DE FIESTA PATRONAL EN HONOR A "NUESTRA SEÑORA VIRGEN DE ANGOSTO"</p>
+  <!-- Contenedor principal -->
+  <div class="flex flex-col md:flex-row w-11/12 max-w-6xl bg-white rounded-xl shadow-lg overflow-hidden">
 
-        <label for="nombre">Ingresa el nombre de la persona a quien se dirigirá el oficio:</label>
-        <input type="text" id="nombre" placeholder="Ej: Juan Pérez Gómez">
-        <button id="btnGenerar" onclick="generarPDF()" disabled>Generar Oficio</button>
+    <!-- Panel de formulario -->
+    <div class="flex-1 flex flex-col items-center justify-center p-8 relative">
+      <!-- Logo para mobile -->
+      <img src="logo.png" alt="Logo" class="mb-6 md:hidden w-32 h-auto">
+
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-4">Generar Oficio</h2>
+      <p class="text-gray-600 text-center mb-6 text-sm md:text-base">
+        COLABORACIÓN ECONÓMICA PARA CELEBRACIÓN DEL LXI (61 años) ANIVERSARIO
+        DE FIESTA PATRONAL EN HONOR A "NUESTRA SEÑORA VIRGEN DE ANGOSTO"
+      </p>
+
+      <div class="w-full max-w-md">
+        <label for="nombre" class="block font-semibold text-gray-700 mb-2 text-left">Ingresa el nombre de la
+          persona:</label>
+        <input type="text" id="nombre" placeholder="Ej: Juan Pérez Gómez"
+          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+
+        <button id="btnGenerar"
+          class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg disabled:bg-gray-400 hover:bg-blue-700 transition"
+          disabled>Generar Oficio</button>
+
+        <div id="successMsg" class="mt-4 p-3 bg-green-100 text-green-800 font-semibold rounded-lg text-center hidden">
+          ¡El oficio se generó correctamente! Revisa tus descargas y compártelo.
+        </div>
       </div>
     </div>
-    <div class="image-panel"></div>
+
+    <!-- Imagen lateral para desktop -->
+    <div class="hidden md:block md:flex-1">
+      <img src="fondo.jpg" alt="Fondo" class="w-full h-full object-cover">
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loadingOverlay"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-xl font-bold hidden z-50">
+    Generando oficio...
   </div>
 
   <script>
     const inputNombre = document.getElementById("nombre");
     const btnGenerar = document.getElementById("btnGenerar");
+    const successMsg = document.getElementById("successMsg");
+    const loadingOverlay = document.getElementById("loadingOverlay");
 
     inputNombre.addEventListener("input", () => {
       btnGenerar.disabled = inputNombre.value.trim() === "";
@@ -187,31 +90,53 @@
       let numeroAleatorio = Math.floor(Math.random() * 900) + 100;
       let numeroOficio = numeroAleatorio.toString().padStart(4, '0');
 
-      const url = "plantilla.pdf";
-      const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+      try {
+        // Mostrar overlay de loading
+        loadingOverlay.classList.remove("hidden");
 
-      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
+        const url = "plantilla.pdf";
+        const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
 
-      firstPage.drawText(nombre, {
-        x: 159,
-        y: 525,
-        size: 10,
-        color: PDFLib.rgb(0, 0, 0),
-        font: await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRomanBold),
-      });
+        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
 
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `OFICIO N° ${numeroOficio}-2025-MU-CFP-NSVA-HB.pdf`;
-      link.click();
+        firstPage.drawText(nombre, {
+          x: 159,
+          y: 525,
+          size: 10,
+          color: PDFLib.rgb(0, 0, 0),
+          font: await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRomanBold),
+        });
 
-      inputNombre.value = "";
-      btnGenerar.disabled = true;
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `OFICIO N° ${numeroOficio}-2025-MU-CFP-NSVA-HB.pdf`;
+        link.click();
+
+        // Limpiar input y deshabilitar botón
+        inputNombre.value = "";
+        btnGenerar.disabled = true;
+
+        // Mostrar mensaje de éxito
+        successMsg.classList.remove("hidden");
+        setTimeout(() => successMsg.classList.add("hidden"), 5000);
+
+      } catch (error) {
+        alert("Ocurrió un error al generar el PDF.");
+        console.error(error);
+      } finally {
+        // Ocultar overlay con un pequeño delay de 1 segundo
+        setTimeout(() => {
+          loadingOverlay.classList.add("hidden");
+        }, 2000);
+      }
+
     }
+
+    btnGenerar.addEventListener("click", generarPDF);
   </script>
 
 </body>
