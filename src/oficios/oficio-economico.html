@@ -2,144 +2,172 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generador Oficio Colaboración Económica</title>
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 (CDN) -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- pdf-lib -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen relative">
-
-  <!-- Verificar login -->
   <script>
-    if (sessionStorage.getItem('loggedIn') !== 'true') {
-      window.location.href = "/index.html";
+    // Verificar autenticación
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromPanel = urlParams.get('from') === 'panel';
+    const isAuthenticated = sessionStorage.getItem("loggedIn") === "true";
+
+    // Si no viene del panel y no está autenticado, redirigir al login
+    if (!fromPanel && !isAuthenticated) {
+      window.location.href = "../../index.html";
+    }
+
+    // Si viene del panel, establecer la sesión
+    if (fromPanel) {
+      sessionStorage.setItem("loggedIn", "true");
     }
   </script>
+  <div id="app" class="w-full flex justify-center">
+    <!-- Contenedor principal -->
+    <div class="flex flex-col md:flex-row w-11/12 max-w-6xl bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- Panel de formulario -->
+      <div class="flex-1 flex flex-col items-center justify-center p-8 relative">
+        <img src="/assets/images/logo.png" alt="Logo" class="mb-6 md:hidden w-32 h-auto" />
 
-  <!-- Contenedor principal -->
-  <div class="flex flex-col md:flex-row w-11/12 max-w-6xl bg-white rounded-xl shadow-lg overflow-hidden">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-4">
+          Oficio Económico
+        </h2>
+        <p class="text-gray-600 text-center mb-6 text-sm md:text-base">
+          COLABORACIÓN ECONÓMICA PARA CELEBRACIÓN DEL LXI (61 años) ANIVERSARIO
+          DE FIESTA PATRONAL EN HONOR A "NUESTRA SEÑORA VIRGEN DE ANGOSTO"
+        </p>
 
-    <!-- Panel de formulario -->
-    <div class="flex-1 flex flex-col items-center justify-center p-8 relative">
-      <img src="logo.png" alt="Logo" class="mb-6 md:hidden w-32 h-auto">
+        <div class="w-full max-w-md">
+          <label for="nombre" class="block font-semibold text-gray-700 mb-2 text-left">Ingresa el nombre de la
+            persona:</label>
+          <input v-model="nombre" type="text" id="nombre" placeholder="Ej: Juan Pérez Gómez"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4" />
 
-      <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-4">Generar Oficio</h2>
-      <p class="text-gray-600 text-center mb-6 text-sm md:text-base">
-        COLABORACIÓN ECONÓMICA PARA CELEBRACIÓN DEL LXI (61 años) ANIVERSARIO
-        DE FIESTA PATRONAL EN HONOR A "NUESTRA SEÑORA VIRGEN DE ANGOSTO"
-      </p>
+          <button @click="generarPDF" :disabled="!nombre.trim()"
+            class="w-full py-3 bg-teal-600 text-white font-bold rounded-lg disabled:bg-gray-400 hover:bg-teal-700 transition mb-2">
+            Generar Oficio
+          </button>
 
-      <div class="w-full max-w-md">
-        <label for="nombre" class="block font-semibold text-gray-700 mb-2 text-left">Ingresa el nombre de la
-          persona:</label>
-        <input type="text" id="nombre" placeholder="Ej: Juan Pérez Gómez"
-          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4">
+          <!-- Botón Volver al panel -->
+          <a href="../../panel.html"
+            class="block w-full py-3 text-center text-blue-600 font-bold rounded-lg bg-blue-100 hover:bg-blue-200 transition">
+            Volver al Panel
+          </a>
 
-        <button id="btnGenerar"
-          class="w-full py-3 bg-teal-600 text-white font-bold rounded-lg disabled:bg-gray-400 hover:bg-teal-700 transition mb-2"
-          disabled>Generar Oficio</button>
-
-        <!-- Botón Cerrar sesión dentro del card -->
-        <button id="btnLogout"
-          class="w-full py-3 text-red-600 font-bold rounded-lg bg-red-100 hover:bg-red-200 transition">
-          Cerrar Sesión
-        </button>
-
-
-        <div id="successMsg" class="mt-4 p-3 bg-green-100 text-green-800 font-semibold rounded-lg text-center hidden">
-          ¡El oficio se generó correctamente! Revisa tus descargas y compártelo.
+          <div v-if="successMsg" class="mt-4 p-3 bg-green-100 text-green-800 font-semibold rounded-lg text-center">
+            ¡El oficio se generó correctamente! Revisa tus descargas y compártelo.
+          </div>
         </div>
+      </div>
+
+      <!-- Imagen lateral para desktop -->
+      <div class="hidden md:block md:flex-1">
+        <img src="/assets/images/fondo.jpg" alt="Fondo" class="w-full h-full object-cover" />
       </div>
     </div>
 
-    <!-- Imagen lateral para desktop -->
-    <div class="hidden md:block md:flex-1">
-      <img src="/assets/images/fondo.jpg" alt="Fondo" class="w-full h-full object-cover">
+    <!-- Loading overlay -->
+    <div v-if="loading"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-xl font-bold z-50">
+      Generando oficio...
     </div>
   </div>
 
-  <!-- Loading overlay -->
-  <div id="loadingOverlay"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-xl font-bold hidden z-50">
-    Generando oficio...
-  </div>
-
   <script>
-    const btnLogout = document.getElementById("btnLogout");
+    const { createApp, ref, onMounted } = Vue;
 
-    function logout() {
-      sessionStorage.removeItem('loggedIn');
-      window.location.href = "/index.html";
-    }
+    createApp({
+      setup() {
+        const nombre = ref("");
+        const successMsg = ref(false);
+        const loading = ref(false);
 
-    btnLogout.addEventListener("click", logout);
+        function logout() {
+          sessionStorage.removeItem("loggedIn");
+          window.location.href = "/index.html";
+        }
 
-    // Cierre automático de sesión en 2 minutos
-    setTimeout(() => {
-      alert("Su sesión ha expirado.");
-      logout();
-    }, 2 * 60 * 1000); // 2 minutos
+        async function generarPDF() {
+          const nombreFinal = (nombre.value || "Nombre no ingresado").toUpperCase();
+          let numeroAleatorio = Math.floor(Math.random() * 900) + 100;
+          let numeroOficio = numeroAleatorio.toString().padStart(4, "0");
+
+          try {
+            loading.value = true;
+
+            const url = "/src/plantillas/plantilla-oficio-economico.pdf";
+            const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
+
+            const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+            const pages = pdfDoc.getPages();
+            const firstPage = pages[0];
 
 
-    // Generador PDF
-    const inputNombre = document.getElementById("nombre");
-    const btnGenerar = document.getElementById("btnGenerar");
-    const successMsg = document.getElementById("successMsg");
-    const loadingOverlay = document.getElementById("loadingOverlay");
+            firstPage.drawText(nombreFinal, {
+              x: 159,
+              y: 511,
+              size: 10,
+              color: PDFLib.rgb(0, 0, 0),
+              font: await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRomanBold),
+            });
 
-    inputNombre.addEventListener("input", () => {
-      btnGenerar.disabled = inputNombre.value.trim() === "";
-    });
+            firstPage.drawText(`OFICIO N° ${numeroOficio}-2025-OEC-CFP-NSVA-HB`, {
+              x: 90,
+              y: 530, //530
+              size: 10,
+              color: PDFLib.rgb(0, 0, 0),
+              font: await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRomanBold),
+            });
 
-    async function generarPDF() {
-      const nombre = (inputNombre.value || "Nombre no ingresado").toUpperCase();
-      let numeroAleatorio = Math.floor(Math.random() * 900) + 100;
-      let numeroOficio = numeroAleatorio.toString().padStart(4, '0');
+            // 👉 Dibuja la rejilla de referencia (debug)
+            /*     for (let i = 50; i < 600; i += 50) {
+                  // eje X
+                  firstPage.drawText(i.toString(), {
+                    x: i,
+                    y: 10,
+                    size: 8,
+                    color: PDFLib.rgb(1, 0, 0),
+                  });
+                  // eje Y
+                  firstPage.drawText(i.toString(), {
+                    x: 10,
+                    y: i,
+                    size: 8,
+                    color: PDFLib.rgb(0, 0, 1),
+                  });
+                } */
 
-      try {
-        loadingOverlay.classList.remove("hidden");
+            const pdfBytes = await pdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: "application/pdf" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `OFICIO N° ${numeroOficio}-2025-OEC-CFP-NSVA-HB.pdf`;
+            link.click();
 
-        const url = "/src/plantillas/plantilla-oficio-economico.pdf";
-        const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+            nombre.value = "";
+            successMsg.value = true;
+            setTimeout(() => (successMsg.value = false), 5000);
+          } catch (err) {
+            alert("Ocurrió un error al generar el PDF.");
+            console.error(err);
+          } finally {
+            setTimeout(() => (loading.value = false), 2000);
+          }
+        }
 
-        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-        const pages = pdfDoc.getPages();
-        const firstPage = pages[0];
-
-        firstPage.drawText(nombre, {
-          x: 159,
-          y: 525,
-          size: 10,
-          color: PDFLib.rgb(0, 0, 0),
-          font: await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRomanBold),
-        });
-
-        const pdfBytes = await pdfDoc.save();
-        const blob = new Blob([pdfBytes], { type: "application/pdf" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `OFICIO N° ${numeroOficio}-2025-MU-CFP-NSVA-HB.pdf`;
-        link.click();
-
-        inputNombre.value = "";
-        btnGenerar.disabled = true;
-
-        successMsg.classList.remove("hidden");
-        setTimeout(() => successMsg.classList.add("hidden"), 5000);
-
-      } catch (error) {
-        alert("Ocurrió un error al generar el PDF.");
-        console.error(error);
-      } finally {
-        setTimeout(() => loadingOverlay.classList.add("hidden"), 2000);
-      }
-    }
-
-    btnGenerar.addEventListener("click", generarPDF);
+        return { nombre, successMsg, loading, logout, generarPDF };
+      },
+    }).mount("#app");
   </script>
-
 </body>
 
 </html>
