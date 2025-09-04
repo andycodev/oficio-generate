@@ -55,7 +55,8 @@
 
                     <label for="asunto" class="block font-semibold text-gray-700 mb-2 text-left">Escribe la
                         colaboración que deseas solicitar a {{ nombre }}:</label>
-                    <textarea v-model="asunto" id="asunto" placeholder="Ej: UNA TAROLA PARA EL PREMIO DEL DESFILE QUE"
+                    <textarea v-model="asunto" id="asunto"
+                        placeholder="Ej: TOLDEADO DEL FRONTIS DE LA IGLESIA A REALIZARSE DEL SÁBADO 27 AL LUNES 29 DE SEPTIEMBRE"
                         @input="asunto = $event.target.value.toUpperCase().slice(0, 164)" maxlength="164"
                         class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4"
                         rows="3"></textarea>
