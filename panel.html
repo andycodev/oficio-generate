@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Panel con Cards y Tabs — TailwindCSS + Vue</title>
+  <title>Panel Oficios</title>
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -14,12 +14,12 @@
     <!-- Header -->
     <header class="mb-8 flex items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Panel</h1>
+        <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Panel de Oficios</h1>
         <p class="text-sm text-neutral-500">
-          Haz clic en una tarjeta y abre el formulario en una nueva pestaña para crear el oficio que necesitas.
+          Selecciona una tarjeta y abre el formulario para crear el oficio que necesitas.
         </p>
       </div>
-      <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+      <button onclick="logout()" class="px-4 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
         Salir
       </button>
     </header>
@@ -29,7 +29,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <template v-for="card in cards" :key="card.id">
           <!-- Card: Oficio -->
-          <a :href="card.url" target="_blank"
+          <a :href="card.url" target="_self"
             class="block group relative overflow-hidden rounded-2xl border bg-white hover:shadow-lg hover:border-neutral-200 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 text-left flex flex-col h-full">
             <!-- Header de la tarjeta con ícono y título -->
             <div class="p-5 pb-0">
