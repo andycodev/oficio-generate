@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generador Oficio Colaboración Económica</title>
+  <title>Generador Oficio Económico</title>
 
   <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -49,7 +49,8 @@
         <div class="w-full max-w-md">
           <label for="nombre" class="block font-semibold text-gray-700 mb-2 text-left">Ingresa el nombre de la
             persona:</label>
-          <input v-model="nombre" type="text" id="nombre" placeholder="Ej: Juan Pérez Gómez"
+          <input v-model="nombre" type="text" id="nombre" placeholder="Ej: JUAN PÉREZ GÓMEZ"
+            @input="nombre = $event.target.value.toUpperCase()"
             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4" />
 
           <button @click="generarPDF" :disabled="!nombre.trim()"
