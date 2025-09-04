@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generador Oficio Deporte</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 (CDN) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- pdf-lib -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen relative">
+    <script>
+        // Verificar autenticación
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromPanel = urlParams.get('from') === 'panel';
+        const isAuthenticated = sessionStorage.getItem("loggedIn") === "true";
+
+        // Si no viene del panel y no está autenticado, redirigir al login
+        if (!fromPanel && !isAuthenticated) {
+            window.location.href = "../../index.html";
+        }
+
+        // Si viene del panel, establecer la sesión
+        if (fromPanel) {
+            sessionStorage.setItem("loggedIn", "true");
+        }
+    </script>
+    <div id="app" class="w-full flex justify-center">
+        <!-- Contenedor principal -->
+        <div class="flex flex-col md:flex-row w-11/12 max-w-6xl bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Panel de formulario -->
+            <div class="flex-1 flex flex-col items-center justify-center p-8 relative">
+                <img src="/assets/images/logo.png" alt="Logo" class="mb-6 md:hidden w-32 h-auto" />
+
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-4">
+                    Oficio Deporte
+                </h2>
+                <p class="text-gray-600 text-center mb-6 text-sm md:text-base">
+                    INVITACIÓN DEPORTIVA PARA CELEBRACIÓN DEL LXI (61 años) ANIVERSARIO
+                    DE FIESTA PATRONAL EN HONOR A "NUESTRA SEÑORA VIRGEN DE ANGOSTO"
+                </p>
+
+                <div class="w-full max-w-md">
+                    <label for="tipoDeporte" class="block font-semibold text-gray-700 mb-2 text-left">Tipo de
+                        deporte:</label>
+                    <select v-model="tipoDeporte" id="tipoDeporte"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4"
+                        @change="actualizarDescripcion">
+                        <template v-for="deporte in deportes" :key="deporte.id">
+                            <option :value="deporte.asunto">{{ deporte.nombre }}</option>
+                        </template>
+                    </select>
+                    <label for="nombre" class="block font-semibold text-gray-700 mb-2 text-left">Ingresa el nombre de la
+                        persona a invitar:</label>
+                    <input v-model="nombre" type="text" id="nombre" placeholder="Ej: JUAN PÉREZ GÓMEZ"
+                        @input="nombre = $event.target.value.toUpperCase()"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4" />
+
+                    <label for="asunto" class="block font-semibold text-gray-700 mb-2 text-left">Descripción de la
+                        invitación para: {{ nombre }}</label>
+                    <textarea v-model="descripcion" id="descripcion"
+                        placeholder="La descripción se cargará automáticamente según el deporte seleccionado"
+                        @input="descripcion = $event.target.value.toUpperCase().slice(0, 200)" maxlength="200"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4"
+                        rows="5"></textarea>
+                    <div class="flex justify-between items-center -mt-4 mb-6">
+                        <small class="text-gray-500">(modificar la descripción si es necesario)</small>
+                        <div class="text-right text-sm text-gray-500">{{ descripcion.length }}/200 caracteres</div>
+                    </div>
+
+                    <button @click="generarPDF" :disabled="!nombre.trim()"
+                        class="w-full py-3 bg-teal-600 text-white font-bold rounded-lg disabled:bg-gray-400 hover:bg-teal-700 transition mb-2">
+                        Generar Oficio
+                    </button>
+
+                    <!-- Botón Volver al panel -->
+                    <a href="../../panel.html"
+                        class="block w-full py-3 text-center text-blue-600 font-bold rounded-lg bg-blue-100 hover:bg-blue-200 transition">
+                        Panel de Oficios
+                    </a>
+
+                    <div v-if="successMsg"
+                        class="mt-4 p-3 bg-green-100 text-green-800 font-semibold rounded-lg text-center">
+                        ¡El oficio se generó correctamente! Revisa tus descargas y compártelo.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Imagen lateral para desktop -->
+            <div class="hidden md:block md:flex-1">
+                <img src="/assets/images/fondo.jpg" alt="Fondo" class="w-full h-full object-cover" />
+            </div>
+        </div>
+
+        <!-- Loading overlay -->
+        <div v-if="loading"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-xl font-bold z-50">
+            Generando oficio...
+        </div>
+    </div>
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                const deportes = [
+                    {
+                        id: 1,
+                        nombre: "Fútbol Libre",
+                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FÚTBOL LIBRE",
+                        descripcion: "CAMPEONATO DE FÚTBOL LIBRE, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 10:00 A.M., EN EL CAMPO DEPORTIVO LA PAMPA, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
+                    },
+                    {
+                        id: 2,
+                        nombre: "Fulbito Master",
+                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FÚTBOL MASTER",
+                        descripcion: "CAMPEONATO DE FÚTBOL MASTER, QUE SE LLEVARÁ A CABO EL DOMINGO 28 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 10:00 A.M., EN EL CAMPO DEPORTIVO DE GRASS SINTETICO, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
+                    },
+                    /* {
+                        id: 3,
+                        nombre: "Voley Libre",
+                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE VOLEY LIBRE",
+                        descripcion: "CAMPEONATO DE VOLEY LIBRE, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 02:00 P.M., EN LA LOZA DEPORTIVA DE BARRIO NUEVO, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
+                    }, */
+                    {
+                        id: 4,
+                        nombre: "Voley Mixto",
+                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE VOLEY MIXTO",
+                        descripcion: "CAMPEONATO DE VOLEY MIXTO, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 02:00 P.M., EN LA LOZA DEPORTIVA DE BARRIO NUEVO, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
+                    }
+
+                ]
+                const tipoDeporte = ref("INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FÚTBOL LIBRE");
+                const nombre = ref("");
+                const descripcion = ref("");
+                const successMsg = ref(false);
+                const loading = ref(false);
+
+                // Función para actualizar la descripción cuando cambia el tipo de deporte
+                function actualizarDescripcion() {
+                    const deporteSeleccionado = deportes.find(d => d.asunto === tipoDeporte.value);
+                    if (deporteSeleccionado) {
+                        descripcion.value = deporteSeleccionado.descripcion;
+                    }
+                }
+
+                // Inicializar con la descripción del primer deporte
+                actualizarDescripcion();
+
+                function logout() {
+                    sessionStorage.removeItem("loggedIn");
+                    window.location.href = "/index.html";
+                }
+
+                async function generarPDF() {
+                    const nombreFinal = (nombre.value || "Nombre no ingresado").toUpperCase();
+                    const asuntoFinal = tipoDeporte.value;
+                    const descripcionFinal = descripcion.value || "Descripción no ingresada";
+                    let numeroAleatorio = Math.floor(Math.random() * 900) + 100;
+                    let numeroOficio = numeroAleatorio.toString().padStart(4, "0");
+
+                    try {
+                        loading.value = true;
+
+                        const url = "/src/plantillas/plantilla-oficio-deporte.pdf";
+                        const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+                        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+                        const pages = pdfDoc.getPages();
+                        const firstPage = pages[0];
+
+                        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRomanBold);
+
+                        // Función para dibujar texto con flujo natural y ajuste automático al ancho
+                        function drawTextFlow(text, x, yStart, maxWidth, lineHeight = 12) {
+                            const paragraphs = text.split(/\r?\n/); // separar por párrafos
+                            let y = yStart;
+
+                            paragraphs.forEach(paragraph => {
+                                const words = paragraph.split(/\s+/);
+                                let line = "";
+
+                                words.forEach((word, index) => {
+                                    const testLine = line ? line + " " + word : word;
+                                    const textWidth = font.widthOfTextAtSize(testLine, 10);
+
+                                    if (textWidth > maxWidth) {
+                                        // dibuja la línea actual
+                                        firstPage.drawText(line, { x, y, size: 10, font, color: PDFLib.rgb(0, 0, 0) });
+                                        line = word; // iniciar nueva línea
+                                        y -= lineHeight;
+                                    } else {
+                                        line = testLine;
+                                    }
+
+                                    // última palabra de párrafo
+                                    if (index === words.length - 1) {
+                                        firstPage.drawText(line, { x, y, size: 10, font, color: PDFLib.rgb(0, 0, 0) });
+                                        y -= lineHeight;
+                                    }
+                                });
+
+                                // espacio extra entre párrafos
+                                y -= lineHeight / 2;
+                            });
+                        }
+
+                        // Dibujar nombre y oficio
+                        firstPage.drawText(`OFICIO N° ${numeroOficio}-2025-ODE-CFP-NSVA-HB`, {
+                            x: 90,
+                            y: 572,
+                            size: 10,
+                            color: PDFLib.rgb(0, 0, 0),
+                            font,
+                        });
+
+                        firstPage.drawText(tipoDeporte.value, {
+                            x: 130,
+                            y: 537,
+                            size: 10,
+                            color: PDFLib.rgb(0, 0, 0),
+                            font,
+                        });
+
+                        firstPage.drawText(nombreFinal, {
+                            x: 158,
+                            y: 554,
+                            size: 10,
+                            color: PDFLib.rgb(0, 0, 0),
+                            font,
+                        });
+
+                        // Dibujar colaboración con flujo natural
+                        //drawTextFlow(asuntoFinal, 130, 522, 400);
+                        drawTextFlow(descripcionFinal, 90, 365, 430);
+
+                        // 👉 Dibuja la rejilla de referencia (debug)
+                        /*      for (let i = 50; i < 600; i += 50) {
+                                 // eje X
+                                 firstPage.drawText(i.toString(), {
+                                     x: i,
+                                     y: 10,
+                                     size: 8,
+                                     color: PDFLib.rgb(1, 0, 0),
+                                 });
+                                 // eje Y
+                                 firstPage.drawText(i.toString(), {
+                                     x: 10,
+                                     y: i,
+                                     size: 8,
+                                     color: PDFLib.rgb(0, 0, 1),
+                                 });
+                             } */
+
+                        // Guardar PDF
+                        const pdfBytes = await pdfDoc.save();
+                        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `OFICIO N° ${numeroOficio}-2025-ODE-CFP-NSVA-HB.pdf`;
+                        link.click();
+
+                        nombre.value = "";
+                        descripcion.value = "";
+                        successMsg.value = true;
+                        setTimeout(() => (successMsg.value = false), 5000);
+
+                    } catch (err) {
+                        alert("Ocurrió un error al generar el PDF.");
+                        console.error(err);
+                    } finally {
+                        setTimeout(() => (loading.value = false), 2000);
+                    }
+                }
+
+                return { deportes, tipoDeporte, nombre, descripcion, successMsg, loading, logout, generarPDF, actualizarDescripcion };
+            },
+        }).mount("#app");
+    </script>
+
+
+</body>
+
+</html>
