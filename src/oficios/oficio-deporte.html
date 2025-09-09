@@ -114,26 +114,30 @@
                         id: 1,
                         nombre: "Fútbol Libre",
                         asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FÚTBOL LIBRE",
-                        descripcion: "CAMPEONATO DE FÚTBOL LIBRE, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 10:00 A.M., EN EL CAMPO DEPORTIVO LA PAMPA, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
+                        descripcion: "CAMPEONATO DE FÚTBOL LIBRE, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 10:00 A.M., EN EL CAMPO DEPORTIVO LA PAMPA, DE NUESTRO CENTRO POBLADO HUACA BLANCA.",
+                        plantilla: "plantilla-oficio-deporte-futbol-libre"
                     },
                     {
                         id: 2,
                         nombre: "Fulbito Master",
-                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FÚTBOL MASTER",
-                        descripcion: "CAMPEONATO DE FÚTBOL MASTER, QUE SE LLEVARÁ A CABO EL DOMINGO 28 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 10:00 A.M., EN EL CAMPO DEPORTIVO DE GRASS SINTETICO, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
+                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FULBITO MASTER",
+                        descripcion: "CAMPEONATO DE FULBITO MASTER, QUE SE LLEVARÁ A CABO EL DOMINGO 28 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 10:00 A.M., EN LA LOZA DEPORTIVA DE BARRIO NUEVO, DE NUESTRO CENTRO POBLADO HUACA BLANCA.",
+                        plantilla: "plantilla-oficio-deporte-fulbito-master"
                     },
-                    /* {
+                    {
                         id: 3,
-                        nombre: "Voley Libre",
-                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE VOLEY LIBRE",
-                        descripcion: "CAMPEONATO DE VOLEY LIBRE, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 02:00 P.M., EN LA LOZA DEPORTIVA DE BARRIO NUEVO, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
-                    }, */
-                    /* {
+                        nombre: "Fulbito Femenino",
+                        asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FULBITO FEMENINO",
+                        descripcion: "CAMPEONATO DE FULBITO FEMENINO, QUE SE LLEVARÁ A CABO EL DOMINGO 28 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 11:30 A.M., EN LA LOZA DEPORTIVA DE BARRIO NUEVO, DE NUESTRO CENTRO POBLADO HUACA BLANCA.",
+                        plantilla: "plantilla-oficio-deporte-fulbito-femenino"
+                    },
+                    {
                         id: 4,
                         nombre: "Voley Mixto",
                         asunto: "INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE VOLEY MIXTO",
-                        descripcion: "CAMPEONATO DE VOLEY MIXTO, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 02:00 P.M., EN LA LOZA DEPORTIVA DE BARRIO NUEVO, DE NUESTRO CENTRO POBLADO HUACA BLANCA."
-                    } */
+                        descripcion: "CAMPEONATO DE VOLEY MIXTO, QUE SE LLEVARÁ A CABO EL SÁBADO 27 DE SEPTIEMBRE DE 2025, A PARTIR DE LAS 02:00 P.M., EN LA LOZA DEPORTIVA DE BARRIO NUEVO, DE NUESTRO CENTRO POBLADO HUACA BLANCA.",
+                        plantilla: "plantilla-oficio-deporte-voley-mixto"
+                    }
 
                 ]
                 const tipoDeporte = ref("INVITACIÓN A PARTICIPAR EN EL CAMPEONATO DE FÚTBOL LIBRE");
@@ -168,7 +172,11 @@
                     try {
                         loading.value = true;
 
-                        const url = "/src/plantillas/plantilla-oficio-deporte.pdf";
+                        const deporteSeleccionado = deportes.find(d => d.asunto === tipoDeporte.value);
+                        if (!deporteSeleccionado) {
+                            throw new Error('No se encontró la plantilla para el deporte seleccionado');
+                        }
+                        const url = `/src/plantillas/tipo-deporte/${deporteSeleccionado.plantilla}.pdf`;
                         const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
                         const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
                         const pages = pdfDoc.getPages();
